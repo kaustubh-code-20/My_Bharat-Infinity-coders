@@ -1,0 +1,6 @@
+{
+  "name": "ScamShield Bharat",
+  "description": "Vernacular scam and fraud checker for Bharat in Hindi, Marathi, and English with fast regex rules, Google Gemini analysis, screenshot OCR, and voice read-aloud.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
