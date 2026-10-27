@@ -11,6 +11,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { Language, SenderLookupResult } from '../types/index.ts';
+import { soundFx } from '../lib/soundEffects.ts';
 
 interface SenderLookupProps {
   language: Language;
@@ -34,6 +35,7 @@ export const SenderLookup: React.FC<SenderLookupProps> = ({ language }) => {
     const q = (targetQuery || query).trim();
     if (!q) return;
 
+    soundFx.playScanBeep();
     setLoading(true);
     setError(null);
     try {
@@ -44,6 +46,11 @@ export const SenderLookup: React.FC<SenderLookupProps> = ({ language }) => {
       }
       const data: SenderLookupResult = await res.json();
       setResult(data);
+      if (data.status === 'reported_scammer') {
+        soundFx.playWarning();
+      } else {
+        soundFx.playSuccess();
+      }
     } catch (err: any) {
       setError(
         err.message ||
@@ -105,7 +112,7 @@ export const SenderLookup: React.FC<SenderLookupProps> = ({ language }) => {
           type="button"
           onClick={() => handleSearch()}
           disabled={loading || !query.trim()}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shrink-0"
+          className="btn-shine px-5 py-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-50 cursor-pointer flex items-center gap-1.5 shrink-0"
         >
           {loading ? (
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -128,7 +135,7 @@ export const SenderLookup: React.FC<SenderLookupProps> = ({ language }) => {
               setQuery(item.val);
               handleSearch(item.val);
             }}
-            className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-700 transition-all cursor-pointer active:scale-95"
+            className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 text-slate-700 hover:text-blue-900 transition-all cursor-pointer active:scale-95 hover:-translate-y-0.5 hover:shadow-xs"
           >
             {item.label}
           </button>
@@ -144,7 +151,7 @@ export const SenderLookup: React.FC<SenderLookupProps> = ({ language }) => {
       {/* Profile Card Output */}
       {result && (
         <div
-          className={`rounded-2xl border p-4 sm:p-5 space-y-4 transition-all ${
+          className={`card-hover-elevate rounded-2xl border p-4 sm:p-5 space-y-4 transition-all ${
             isScammer
               ? 'bg-red-50/70 border-red-300 text-red-950'
               : isOfficial

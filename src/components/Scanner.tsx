@@ -13,6 +13,7 @@ import Tesseract from 'tesseract.js';
 import { Language } from '../types/index.ts';
 import { translations, sampleScenarios } from '../lib/translations.ts';
 import { extractEntities } from '../lib/rulesEngine.ts';
+import { soundFx } from '../lib/soundEffects.ts';
 
 interface ScannerProps {
   language: Language;
@@ -101,6 +102,7 @@ export const Scanner: React.FC<ScannerProps> = ({
   };
 
   const handleLoadScenario = (scenarioText: string) => {
+    soundFx.playClick();
     setInputText(scenarioText);
     setImagePreview(null);
     setOcrStatusText('');
@@ -112,7 +114,10 @@ export const Scanner: React.FC<ScannerProps> = ({
       <div className="flex border-b border-slate-200 bg-slate-50/70">
         <button
           type="button"
-          onClick={() => setActiveTab('text')}
+          onClick={() => {
+            soundFx.playClick();
+            setActiveTab('text');
+          }}
           className={`flex-1 py-3.5 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 border-b-2 transition-all cursor-pointer ${
             activeTab === 'text'
               ? 'border-orange-600 text-orange-600 bg-white'
@@ -125,7 +130,10 @@ export const Scanner: React.FC<ScannerProps> = ({
 
         <button
           type="button"
-          onClick={() => setActiveTab('image')}
+          onClick={() => {
+            soundFx.playClick();
+            setActiveTab('image');
+          }}
           className={`flex-1 py-3.5 px-4 text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 border-b-2 transition-all cursor-pointer ${
             activeTab === 'image'
               ? 'border-orange-600 text-orange-600 bg-white'
@@ -285,7 +293,7 @@ export const Scanner: React.FC<ScannerProps> = ({
                 key={scenario.id}
                 type="button"
                 onClick={() => handleLoadScenario(scenario.text)}
-                className={`text-xs px-3 py-1.5 rounded-xl border transition-all text-left flex items-center gap-2 active:scale-95 cursor-pointer ${
+                className={`text-xs px-3 py-1.5 rounded-xl border transition-all text-left flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-xs active:scale-95 cursor-pointer ${
                   inputText === scenario.text
                     ? 'bg-orange-50 border-orange-400 text-orange-950 font-bold shadow-xs'
                     : 'bg-slate-50 hover:bg-slate-100 border-slate-200 hover:border-slate-300 text-slate-700'
@@ -307,13 +315,16 @@ export const Scanner: React.FC<ScannerProps> = ({
         {/* Primary Scan Button with tactile hover and active scales */}
         <button
           type="button"
-          onClick={onScan}
+          onClick={() => {
+            soundFx.playScanBeep();
+            onScan();
+          }}
           disabled={isLoading || !inputText.trim()}
-          className="w-full py-3.5 px-6 rounded-xl font-bold text-sm sm:text-base text-white bg-slate-900 hover:bg-slate-800 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-slate-900/10 hover:shadow-lg flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer"
+          className="btn-shine w-full py-3.5 px-6 rounded-xl font-bold text-sm sm:text-base text-white bg-slate-900 hover:bg-slate-800 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-slate-900/10 hover:shadow-xl hover:shadow-orange-500/10 flex items-center justify-center gap-2 transition-all duration-150 cursor-pointer"
         >
           {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-orange-400 border-t-white rounded-full animate-spin" />
               <span>{t.scanning}</span>
             </>
           ) : (

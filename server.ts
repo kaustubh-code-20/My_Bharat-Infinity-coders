@@ -206,14 +206,17 @@ const knownSenders: Record<string, SenderLookupResult> = {
 };
 
 // Server-side Gemini AI Client
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    },
-  },
-});
+const geminiApiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+const ai = geminiApiKey
+  ? new GoogleGenAI({
+      apiKey: geminiApiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    })
+  : null;
 
 // POST /api/scan endpoint
 app.post('/api/scan', async (req: Request, res: Response) => {
@@ -285,6 +288,36 @@ Determine:
 12. safety_tip_en: 1 memorable golden rule in English
 13. safety_tip_hi: 1 memorable golden rule in Hindi
 14. safety_tip_mr: 1 memorable golden rule in Marathi`;
+
+    if (!ai) {
+      const fallbackResult: ScanResult = {
+        verdict: 'Suspicious',
+        category: 'general',
+        riskScore: 60,
+        confidence: 0.82,
+        engineUsed: 'Local Rules Engine',
+        detectedIndicators: ['Unverified sender pattern detected'],
+        extractedEntities: clientEntities,
+        explanation: {
+          en: 'Unverified message pattern from an unknown sender. Official institutions use verified alphanumeric sender headers.',
+          hi: 'अपरिचित स्रोत से आया संदेश। बैंक व आधिकारिक विभाग हमेशा अधिकृत 6-अक्षरी हेडर का उपयोग करते हैं।',
+          mr: 'अनोळखी मेसेज. अधिकृत संस्था केवळ नोंदणीकृत ६-अक्षरी हेडर वापरतात.',
+        },
+        plainSummary: 'Unverified message pattern. Exercise caution before acting.',
+        actionSteps: {
+          en: ['Do not click unknown links or share credentials', 'Verify directly with the entity', 'Call 1930 if in doubt'],
+          hi: ['अपरिचित लिंक पर क्लिक न करें', '1930 हेल्पलाइन पर संपर्क करें'],
+          mr: ['अनोळखी लिंकवर क्लिक करू नका', '१९३० वर संपर्क करा'],
+        },
+        safetyTips: {
+          en: 'Never share OTP or banking PIN with anyone.',
+          hi: 'कभी भी अपना OTP या पिन किसी से साझा न करें।',
+          mr: 'कधीही आपला OTP किंवा पिन कोणालाही देऊ नका.',
+        },
+      };
+      res.json(fallbackResult);
+      return;
+    }
 
     const aiResponse = await ai.models.generateContent({
       model: 'gemini-3.8-flash',
@@ -526,7 +559,9 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`ScamShield Bharat server listening on http://0.0.0.0:${PORT}`);
+    console.log(`\n  🛡️  ScamShield Bharat is running!`);
+    console.log(`  ➜  Local:   http://localhost:${PORT}/`);
+    console.log(`  ➜  Network: http://127.0.0.1:${PORT}/\n`);
   });
 }
 

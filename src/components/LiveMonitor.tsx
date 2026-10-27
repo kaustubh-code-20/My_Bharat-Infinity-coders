@@ -13,6 +13,7 @@ import {
   Ban,
 } from 'lucide-react';
 import { Language, IncomingMessage, ScanResult } from '../types/index.ts';
+import { soundFx } from '../lib/soundEffects.ts';
 
 interface LiveMonitorProps {
   language: Language;
@@ -72,6 +73,7 @@ export const LiveMonitor: React.FC<LiveMonitorProps> = ({
   ];
 
   const triggerPreset = async (preset: (typeof presets)[0]) => {
+    soundFx.playScanBeep();
     setIsProcessing(true);
     try {
       const res = await fetch('/api/scan', {
@@ -112,6 +114,7 @@ export const LiveMonitor: React.FC<LiveMonitorProps> = ({
         return;
       }
 
+      soundFx.playScanBeep();
       setClipboardStatus('Scanning clipboard text...');
       const res = await fetch('/api/scan', {
         method: 'POST',
@@ -175,10 +178,10 @@ export const LiveMonitor: React.FC<LiveMonitorProps> = ({
               type="button"
               onClick={() => triggerPreset(preset)}
               disabled={isProcessing}
-              className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700/90 active:scale-[0.98] border border-slate-700 hover:border-slate-600 rounded-xl text-left text-xs text-slate-200 transition-all cursor-pointer flex items-center justify-between gap-2 shadow-xs"
+              className="group py-2.5 px-3 bg-slate-800 hover:bg-slate-700/90 active:scale-[0.98] border border-slate-700 hover:border-orange-500/50 rounded-xl text-left text-xs text-slate-200 transition-all cursor-pointer flex items-center justify-between gap-2 shadow-xs hover:-translate-y-0.5 hover:shadow-md"
             >
               <span className="font-semibold truncate">{preset.label}</span>
-              <span className="text-[10px] text-orange-400 font-mono shrink-0">
+              <span className="text-[10px] text-orange-400 font-mono shrink-0 group-hover:translate-x-1 transition-transform">
                 Send &gt;
               </span>
             </button>
@@ -190,7 +193,7 @@ export const LiveMonitor: React.FC<LiveMonitorProps> = ({
           <button
             type="button"
             onClick={handleScanClipboard}
-            className="flex-1 py-2.5 px-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+            className="btn-shine flex-1 py-2.5 px-3 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
           >
             <Clipboard className="w-3.5 h-3.5" />
             <span>Auto-Scan Copied Text (Clipboard)</span>

@@ -21,6 +21,7 @@ import {
 import { Language, ScanResult } from '../types/index.ts';
 import { translations } from '../lib/translations.ts';
 import { ThreatMeter } from './ThreatMeter.tsx';
+import { soundFx } from '../lib/soundEffects.ts';
 
 interface VerdictCardProps {
   result: ScanResult;
@@ -33,6 +34,12 @@ export const VerdictCard: React.FC<VerdictCardProps> = ({ result, language }) =>
   const [copiedShare, setCopiedShare] = useState(false);
 
   useEffect(() => {
+    if (result.verdict === 'Scam' || result.verdict === 'Suspicious') {
+      soundFx.playWarning();
+    } else {
+      soundFx.playSuccess();
+    }
+
     return () => {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -134,6 +141,7 @@ _Verified via ScamShield Bharat: Vernacular Cyber Protection_`;
   };
 
   const handleCopyReport = () => {
+    soundFx.playSuccess();
     const explanation =
       result.explanation[language] || result.plainSummary || result.explanation.en;
     const reportText = `[ScamShield Bharat Report]
@@ -176,7 +184,7 @@ Helpline: 1930 (National Cyber Crime Portal)`;
 
   return (
     <div
-      className={`rounded-2xl border p-5 sm:p-6 shadow-sm hover:shadow-md transition-all duration-200 space-y-5 ${containerStyles}`}
+      className={`card-hover-elevate rounded-2xl border p-5 sm:p-6 shadow-sm hover:shadow-md transition-all duration-200 space-y-5 ${containerStyles}`}
     >
       {/* 1. Dynamic Threat Meter Gauge */}
       <ThreatMeter

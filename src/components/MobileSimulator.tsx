@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Language, IncomingMessage } from '../types/index.ts';
 import { TruecallerAlert } from './TruecallerAlert.tsx';
+import { soundFx } from '../lib/soundEffects.ts';
 
 interface MobileSimulatorProps {
   language: Language;
@@ -50,6 +51,11 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  const handleTabChange = (tab: 'alerts' | 'lookup' | 'scan' | 'safety') => {
+    soundFx.playClick();
+    setActiveTab(tab);
+  };
+
   const navItems = [
     { id: 'alerts', label: 'Live Alerts', icon: Bell },
     { id: 'lookup', label: 'Sender ID', icon: Search },
@@ -65,15 +71,18 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
         <div className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wide">
               ScamShield Truecaller Engine: Running
             </span>
           </div>
 
           <button
             type="button"
-            onClick={onToggleSimulatorMode}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-all cursor-pointer shadow-xs active:scale-95"
+            onClick={() => {
+              soundFx.playClick();
+              onToggleSimulatorMode();
+            }}
+            className="btn-shine flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold border border-slate-700 hover:border-orange-500/50 transition-all cursor-pointer shadow-xs active:scale-95"
           >
             <Smartphone className="w-3.5 h-3.5 text-orange-400" />
             <span>Switch to Phone Frame View</span>
@@ -90,8 +99,8 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
           />
         )}
 
-        {/* Mobile Navigation Tabs */}
-        <div className="flex bg-white p-1 rounded-2xl border border-slate-200 shadow-xs">
+        {/* Mobile Navigation Tabs with Hover Lift */}
+        <div className="flex bg-slate-800/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-lg">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -99,14 +108,14 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => handleTabChange(item.id)}
                 className={`flex-1 py-3 px-2 rounded-xl flex items-center justify-center gap-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    ? 'bg-orange-600 text-white shadow-md shadow-orange-600/30'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700/60 hover:-translate-y-0.5'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-orange-400' : ''}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                 <span>{item.label}</span>
               </button>
             );
@@ -126,25 +135,29 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
       <div className="flex items-center justify-between w-full max-w-sm sm:max-w-md px-2">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-semibold text-slate-600">
+          <span className="text-xs font-semibold text-slate-400">
             Simulated 5G Android / iOS
           </span>
         </div>
 
         <button
           type="button"
-          onClick={onToggleSimulatorMode}
-          className="flex items-center gap-1.5 text-xs text-slate-700 hover:text-slate-900 font-semibold bg-white border border-slate-300 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
+          onClick={() => {
+            soundFx.playClick();
+            onToggleSimulatorMode();
+          }}
+          className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-white font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-slate-600 px-3 py-1.5 rounded-xl shadow-xs transition-all cursor-pointer active:scale-95"
         >
-          <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
+          <Maximize2 className="w-3.5 h-3.5 text-orange-400" />
           <span>Full Width Mode</span>
         </button>
       </div>
 
-      {/* Phone Hardware Shell */}
-      <div className="relative w-full max-w-[400px] h-[780px] bg-slate-950 rounded-[48px] p-3 shadow-2xl border-4 border-slate-800 ring-1 ring-slate-900/50 flex flex-col overflow-hidden">
-        {/* Dynamic Island / Earpiece */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 w-28 h-5 bg-black rounded-full flex items-center justify-end px-3">
+      {/* Phone Hardware Shell with Hover Shine & Elevation */}
+      <div className="phone-screen-glare relative w-full max-w-[400px] h-[780px] bg-slate-950 rounded-[48px] p-3 shadow-2xl hover:shadow-[0_25px_60px_-15px_rgba(234,88,12,0.2)] border-4 border-slate-800 hover:border-slate-700 ring-1 ring-slate-900/50 flex flex-col overflow-hidden transition-all duration-300">
+        {/* Dynamic Island / Earpiece with hover reaction */}
+        <div className="group absolute top-4 left-1/2 -translate-x-1/2 z-40 w-28 hover:w-36 h-5 bg-black rounded-full flex items-center justify-between px-3 transition-all duration-300 cursor-pointer shadow-md">
+          <div className="w-2 h-2 rounded-full bg-emerald-500/80 animate-pulse" />
           <div className="w-2.5 h-2.5 rounded-full bg-slate-900 ring-1 ring-slate-800" />
         </div>
 
@@ -184,15 +197,22 @@ export const MobileSimulator: React.FC<MobileSimulatorProps> = ({
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex flex-col items-center justify-center h-full py-1 transition-colors cursor-pointer ${
-                    isActive ? 'text-orange-600' : 'text-slate-500 hover:text-slate-800'
+                  onClick={() => handleTabChange(item.id)}
+                  className={`relative flex flex-col items-center justify-center h-full py-1 transition-all cursor-pointer group hover:-translate-y-0.5 ${
+                    isActive ? 'text-orange-600' : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+                  {isActive && (
+                    <span className="absolute top-1 w-6 h-0.5 bg-orange-600 rounded-full" />
+                  )}
+                  <Icon
+                    className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                      isActive ? 'stroke-[2.5] text-orange-600' : 'stroke-2'
+                    }`}
+                  />
                   <span
                     className={`text-[10px] mt-1 font-medium tracking-tight truncate max-w-[80px] ${
-                      isActive ? 'font-bold' : ''
+                      isActive ? 'font-bold text-orange-600' : ''
                     }`}
                   >
                     {item.label}
